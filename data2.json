@@ -21,207 +21,429 @@
       "special_programs": "برنامج الذكاء الاصطناعي الحيوي... (برامج خاصة بالمصروفات)"
     },
     "leadership": {
-      "dean": "لم يتم تحديده",
+      "dean": {
+        "name": "أ.م.د/ تامر مدحت محمد إبراهيم",
+        "title": "عميد كلية الذكاء الاصطناعي"
+      },
       "vice_deans": [
         {
-          "role": "وكيل الكلية لشئون التعليم والطلاب",
-          "name": "أ.م.د/ تامر مدحت محمد إبراهيم (معار من كلية الهندسة)"
-        },
-        {
           "role": "وكيل الكلية للدراسات العليا والبحوث",
-          "name": "د/ محمود يس يش شمس الدين (تم التجديد في مارس 2025)"
+          "name": "د/ محمود يس يش شمس الدين"
         }
       ],
       "secretary": {
         "role": "أمين الكلية",
-        "name": "م/ وائل محمد صبحي أبو شعيشة"
+        "name": "م/ وائل محمد صبحي أبو شعيشة",
+        "email": "com.unit@kfs.edu.eg"
       }
     },
     "statistics": {
       "total_faculty_staff": 27,
-      "professors": 1,
-      "associate_professors": 5,
-      "assistant_professors": 9,
-      "teaching_assistants": 12,
-      "academic_year": "2025-2026"
+      "by_department": {
+        "برمجة الآلة واسترجاع المعلومات": 9,
+        "الروبوتات والآلات الذكية": 7,
+        "تكنولوجيا أنظمة الشبكات المدمجة": 6,
+        "علوم البيانات": 5
+      },
+      "by_position": {
+        "أستاذ": 0,
+        "أستاذ مساعد": 5,
+        "مدرس": 9,
+        "مدرس مساعد": 2,
+        "معيد": 11
+      }
     }
   },
-  "staff_members": [
-    {
-      "id": 1,
-      "full_name": "محمود يس يش شمس الدين",
-      "full_name_en": "Mahmoud Yassein Shams",
-      "position": "أستاذ مساعد",
-      "current_role": "وكيل الكلية للدراسات العليا والبحوث (تم التجديد في مارس 2025) [citation:1]",
-      "department": "برمجة الآلة واسترجاع المعلومات",
-      "specialization_general": "علوم الحاسب",
-      "specialization_specific": "الذكاء الاصطناعي، رؤية الآلة، التعلم العميق، الأمن السيبراني [citation:3]",
-      "status": "قائم",
-      "email": "لم يتم توفيره",
-      "research_gate": "https://www.researchgate.net/profile/Mahmoud-Shams",
-      "scopus_link": "https://thesai.org/Reviewers/Details/045789a9-3842-42b6-8246-d9280b317ad4 [citation:3]",
-      "education": {
-        "bachelor": "هندسة إلكترونيات واتصالات، جامعة المنصورة (2004) [citation:3]",
-        "master": "رؤية حاسوبية، جامعة المنصورة [citation:3]",
-        "phd": "علوم الحاسب، جامعة المنصورة [citation:3]"
+  "dean_full_profile": {
+    "full_name": "أ.م.د/ تامر مدحت محمد إبراهيم",
+    "full_name_en": "Tamer Medhat Mohamed Ibrahim",
+    "nationality": "مصري",
+    "birth_date": "1974-07-13",
+    "birth_place": "منشأة عقل – سيدي سالم – كفر الشيخ – مصر",
+    "current_position": "عميد كلية الذكاء الاصطناعي، جامعة كفر الشيخ",
+    "academic_rank": "أستاذ مساعد (هندسة الحاسبات والنظم)",
+    "email": "tmedhatm@eng.kfs.edu.eg",
+    "personal_website": "www.kfs.edu.eg/drtamer.html",
+    "google_scholar": "http://scholar.google.com.eg/citations?user=l7Dv-q0AAAAJ&hl=en",
+    "research_gate": "http://www.researchgate.net/profile/tamer_medhat",
+    "academia": "http://kfs.academia.edu/tamermedhat",
+    "facebook": "http://www.facebook.com/dr.tamer.medhat",
+    "education": {
+      "bachelor": {
+        "degree": "بكالوريوس هندسة كهربية (شعبة حاسبات الكترونية وتحكم آلى)",
+        "year": 1998,
+        "university": "كلية الهندسة – جامعة طنطا"
       },
-      "achievements": [
-        "مدير أكاديمية هواوي للتدريب بالجامعة [citation:2]",
-        "حصول فريقه على المركز الأول في مسابقة هواوي ICT على مستوى مصر [citation:1]",
-        "المركز الأول في المسابقة الدولية لابتكارات الشباب IC-SIT 2025 عن مشروع 'وريد الأمل' [citation:1]"
+      "master": {
+        "degree": "ماجستير",
+        "year": 2004,
+        "university": "كلية الهندسة – جامعة طنطا",
+        "thesis_title_ar": "تطبيقات توبولوجية على تحليل المعلومات بالمجموعات الاستقرابية",
+        "thesis_title_en": "Topological Applications on information Analysis by Rough Sets"
+      },
+      "phd": {
+        "degree": "دكتوراة",
+        "year": 2007,
+        "university": "كلية الهندسة – جامعة طنطا",
+        "thesis_title_ar": "مدخل توبولوجي موسع لصناعة القرار باستخدام التقديرات التجزئية",
+        "thesis_title_en": "Supra Topological Approach for Decision Making via Granular Computing"
+      }
+    },
+    "current_positions": [
+      {
+        "title": "عميد كلية الذكاء الاصطناعي",
+        "university": "جامعة كفر الشيخ"
+      },
+      {
+        "title": "أستاذ مساعد هندسة الحاسبات والنظم",
+        "department": "قسم الهندسة الكهربية",
+        "faculty": "كلية الهندسة",
+        "university": "جامعة كفر الشيخ",
+        "start_date": "2019-10-28"
+      }
+    ],
+    "previous_positions": [
+      {
+        "title": "وكيل كلية الذكاء الاصطناعي لشئون التعليم والطلاب",
+        "university": "جامعة كفر الشيخ",
+        "start_date": "2020-02-10"
+      },
+      {
+        "title": "مدير شبكة الجامعات المصرية",
+        "organization": "المجلس الأعلى للجامعات",
+        "period": "2018-12-15 إلى 2019-12-15"
+      },
+      {
+        "title": "المدير التنفيذي للمعلومات",
+        "university": "جامعة كفر الشيخ",
+        "period": "2010-09-01 إلى 2018-12-14"
+      },
+      {
+        "title": "مدير مشروع نظم المعلومات الإدارية",
+        "university": "جامعة كفر الشيخ",
+        "period": "2007-12-27 إلى 2010-08-30"
+      },
+      {
+        "title": "مدرس",
+        "faculty": "كلية الهندسة",
+        "university": "جامعة كفرالشيخ",
+        "period": "2007-12-24 إلى 2019-10-27"
+      },
+      {
+        "title": "مدرس مساعد",
+        "faculty": "كلية الهندسة",
+        "university": "جامعة كفرالشيخ",
+        "period": "2007-10-18 إلى 2007-12-23"
+      },
+      {
+        "title": "مدرس مساعد",
+        "faculty": "كلية الهندسة",
+        "university": "جامعة طنطا",
+        "period": "2004-04-06 إلى 2007-10-17"
+      },
+      {
+        "title": "معيد",
+        "faculty": "كلية الهندسة",
+        "university": "جامعة طنطا",
+        "period": "1999-01-12 إلى 2004-04-05"
+      }
+    ],
+    "research_interests": [
+      "الحاسب الآلي وتطبيقاته",
+      "صناعة القرار",
+      "نظم المعلومات",
+      "الشبكات العصبية",
+      "الواقع المعزز",
+      "الواقع الافتراضي",
+      "انترنت الأشياء",
+      "المجموعات الاستقرابية",
+      "المجموعات الفازية",
+      "الحوسبة التجزئية",
+      "الذكاء الاصطناعي",
+      "الرياضيات الهندسية",
+      "التوبولوجى"
+    ],
+    "memberships": [
+      "عضو لجنة البنية المعلوماتية بجامعتى الجلالة والملك سلمان",
+      "عضو اللجنة التنفيذية لمركز الخدمات الإلكترونية والمعرفية بالمجلس الأعلى للجامعات",
+      "عضو اللجنة التنفيذية لشبكة الجامعات المصرية بالمجلس الأعلى للجامعات",
+      "عضو اللجنة القومية لمشروع تطوير نظم وتكنولوجيا المعلومات ICTP",
+      "عضو لجنة اختيار القيادات المدنية بمحافظة كفر الشيخ",
+      "عضو لجنة تبني معايير الإرتقاء بالتصنيف الدولي والريادة العلمية لجامعة كفر الشيخ",
+      "عضو نقابة المهندسين",
+      "عضو الجمعية العالمية للمجموعات الاستقرابية",
+      "عضو المجموعة المصرية للمجموعات الاستقرابية"
+    ],
+    "publications_count": 29
+  },
+  "departments": [
+    {
+      "name": "علوم البيانات",
+      "member_count": 5,
+      "members": [
+        {
+          "code": "16203198600006",
+          "full_name": "د/ سمر محمد حندوسة أحمد البدويهي",
+          "birth_date": "1986-11-12",
+          "position": "مدرس",
+          "appointment_date": "2023-06-26",
+          "specialization": "علوم الحاسب"
+        },
+        {
+          "code": "16203198880015",
+          "full_name": "حسناء سيد احمد عبدالواحد ابو حطب",
+          "birth_date": "1988-09-20",
+          "position": "مدرس مساعد",
+          "appointment_date": "2025-05-08",
+          "specialization": "نظم المعلومات"
+        },
+        {
+          "code": "16203200180010",
+          "full_name": "حسن سعد حسن عبداللطيف محمود ابو منيسي",
+          "birth_date": "2001-07-29",
+          "position": "معيد",
+          "appointment_date": "2024-04-08",
+          "specialization": "علوم البيانات"
+        },
+        {
+          "code": "16203200180009",
+          "full_name": "عبدالرؤوق عيدالمنعم عبدالحكيم",
+          "birth_date": "2001-12-09",
+          "position": "معيد",
+          "appointment_date": "2024-04-08",
+          "specialization": "علوم البيانات"
+        },
+        {
+          "code": "16203200180012",
+          "full_name": "محمود حمزه محمد ابراهيم عبداللا",
+          "birth_date": "2001-09-15",
+          "position": "معيد",
+          "appointment_date": "2024-04-08",
+          "specialization": "علوم البيانات"
+        }
       ]
     },
     {
-      "id": 2,
-      "full_name": "مني جمال السيد جعفر",
-      "position": "أستاذ مساعد",
-      "department": "برمجة الآلة واسترجاع المعلومات",
-      "specialization_general": "نظم المعلومات",
-      "specialization_specific": "نظم المعلومات",
-      "status": "قائم",
-      "email": "لم يتم توفيره",
-      "education": {
-        "bachelor": "كلية الحاسبات والمعلومات، جامعة المنصورة (2006) [citation:4]",
-        "master": "كلية الحاسبات والمعلومات، جامعة المنصورة (2010) [citation:4]",
-        "phd": "كلية الحاسبات والمعلومات، جامعة المنصورة (2014) [citation:4]"
-      },
-      "previous_positions": [
-        "مدرس مساعد - كلية الحاسبات والمعلومات، جامعة المنصورة (2010-2014) [citation:4]",
-        "مدرس - كلية الحاسبات والمعلومات، جامعة كفر الشيخ (2015-2018) [citation:4]",
-        "أستاذ مساعد - كلية الذكاء الاصطناعي، جامعة كفر الشيخ (2018-2019) [citation:4]"
+      "name": "الروبوتات والآلات الذكية",
+      "member_count": 7,
+      "members": [
+        {
+          "code": "1620198780001",
+          "full_name": "د/ محمد عبده محمد على قاسم",
+          "birth_date": "1987-11-05",
+          "position": "أستاذ مساعد",
+          "appointment_date": "2025-10-28",
+          "specialization": "تكنولوجيا المعلومات"
+        },
+        {
+          "code": "16203199000002",
+          "full_name": "د/ احمد صديق الشحات السيد العدس",
+          "birth_date": "1990-04-29",
+          "position": "مدرس",
+          "appointment_date": "2021-01-26",
+          "specialization": "الهندسة الكهربائية"
+        },
+        {
+          "code": "16203198800011",
+          "full_name": "د/ منى حسين محمود احمد النجار",
+          "birth_date": "1988-03-07",
+          "position": "مدرس",
+          "appointment_date": "2023-06-26",
+          "specialization": "علوم الحاسب"
+        },
+        {
+          "code": "16203198500010",
+          "full_name": "د/ مروة محمد الصديق رضوان",
+          "birth_date": "1985-06-01",
+          "position": "مدرس",
+          "appointment_date": "2024-03-26",
+          "specialization": "نظم المعلومات"
+        },
+        {
+          "code": "16203199780002",
+          "full_name": "أحمد هشام رمضان حسان عيد",
+          "birth_date": "1997-08-02",
+          "position": "معيد",
+          "appointment_date": "2019-11-14",
+          "specialization": "تكنولوجيا المعلومات"
+        },
+        {
+          "code": "16203200180013",
+          "full_name": "يشار جمال عبدالحليم محمد علي ودن",
+          "birth_date": "2001-12-18",
+          "position": "معيد",
+          "appointment_date": "2024-04-08",
+          "specialization": "الروبوتات والآلات الذكية"
+        },
+        {
+          "code": "16203200180018",
+          "full_name": "مروة السيد خليل السيد",
+          "birth_date": "2001-08-16",
+          "position": "معيد",
+          "appointment_date": "2025-09-22",
+          "specialization": "الروبوتات والآلات الذكية"
+        }
       ]
     },
     {
-      "id": 3,
-      "full_name": "نورا محمود متولي",
-      "position": "مدرس",
-      "department": "برمجة الآلة واسترجاع المعلومات",
-      "specialization_general": "علوم الحاسب",
-      "specialization_specific": "علوم الحاسب",
-      "status": "قائم",
-      "email": "لم يتم توفيره",
-      "notes": "لم يتم العثور على معلومات إضافية عبر البحث"
-    },
-    {
-      "id": 4,
-      "full_name": "اسراء حسن عبدالسالم",
-      "position": "مدرس مساعد",
-      "department": "برمجة الآلة واسترجاع المعلومات",
-      "specialization_general": "علوم الحاسب",
-      "specialization_specific": "علوم الحاسب",
-      "status": "قائم",
-      "email": "لم يتم توفيره",
-      "notes": "لم يتم العثور على معلومات إضافية عبر البحث"
-    },
-    {
-      "id": 5,
-      "full_name": "فاطمة محمد طلعت المرسي",
-      "full_name_en": "Fatma M. Talaat",
-      "position": "أستاذ مساعد",
-      "department": "برمجة الآلة واسترجاع المعلومات",
-      "specialization_general": "هندسة الحاسبات والتطوير الآلي",
-      "specialization_specific": "هندسة الحاسبات والتحكم الآلي، الذكاء الاصطناعي في الرعاية الصحية",
-      "status": "قائم",
-      "email": "fatma.mohamed@ai.kfs.edu.eg (متوقع)",
-      "research_gate": "https://www.researchgate.net/profile/Fatma-M-Talaat",
-      "education": {
-        "master": "الهندسة - جامعة المنصورة",
-        "phd": "الهندسة - جامعة المنصورة"
-      },
-      "achievements": [
-        "تم إدراجها ضمن قائمة أفضل 2% من العلماء الأكثر تأثيراً عالمياً لعام 2025 من جامعة Stanford",
-        "حاصلة على المركز الأول في Top Instructor من شركة Huawei",
-        "حاصلة على شهادات احترافية من IBM في الذكاء الاصطناعي وتحليل البيانات"
-      ],
-      "research_interests": [
-        "التعلم العميق وتحليل الصور الطبية",
-        "التشخيص المبكر للأمراض",
-        "الصحة النفسية",
-        "أنظمة اتخاذ القرارات الذكية"
-      ],
-      "h_index": 37,
-      "notes": "من أبناء محافظة الدقهلية (طلخا)"
-    },
-    {
-      "id": 6,
-      "full_name": "محمود أحمد محسن",
-      "position": "مدرس مساعد",
-      "department": "برمجة الآلة واسترجاع المعلومات",
-      "specialization_general": "علوم الحاسب",
-      "specialization_specific": "علوم الحاسب",
-      "status": "قائم",
-      "email": "لم يتم توفيره",
-      "notes": "لم يتم العثور على معلومات إضافية عبر البحث"
-    },
-    {
-      "id": 7,
-      "full_name": "تامر مدحت محمد إبراهيم",
-      "full_name_en": "Tamer Medhat",
-      "position": "أستاذ مساعد",
-      "current_role": "وكيل كلية الذكاء الاصطناعي لشئون التعليم والطلاب ورئيس أكاديمية هواوي للتدريب [citation:1]",
-      "department": "هندسة الحاسبات والنظم (قسم الهندسة الكهربية - كلية الهندسة سابقاً)",
-      "specialization_general": "هندسة الحاسبات",
-      "specialization_specific": "الأنظمة الطوبولوجية، المجموعات التقريبية (Rough Sets)، الحوسبة التجزئية، اتخاذ القرار",
-      "email": "tmedhatm@eng.kfs.edu.eg",
-      "personal_website": "www.kfs.edu.eg/drtamer.html",
-      "google_scholar": "http://scholar.google.com.eg/citations?user=17Dv-q0AAAAJ&hl=en",
-      "research_gate": "http://www.researchgate.net/profile/tamer_medhat",
-      "academia": "http://kfs.academia.edu/tamermedhat",
-      "phone": "047-316900",
-      "status": "قائم (أعير من كلية الهندسة)",
-      "education": {
-        "bachelor": "هندسة كهربية (حاسبات وتحكم آلى) - جامعة طنطا (1998)",
-        "master": "تطبيقات توبولوجية على تحليل المعلومات - جامعة طنطا (2004)",
-        "phd": "مدخل توبولوجي موسع لصناعة القرار - جامعة طنطا (2007)"
-      },
-      "achievements": [
-        "حصول فريق الكلية على المركز الأول في الأولمبياد السابع للجامعات المصرية 2025 [citation:1]",
-        "المركز الأول في مسابقة هواوي ICT على مستوى الجامعات المصرية [citation:1]"
-      ],
-      "memberships": [
-        "عضو اللجنة التنفيذية لشبكة الجامعات المصرية (سابقاً)",
-        "عضو الجمعية العالمية للمجموعات الاستقرابية"
+      "name": "تكنولوجيا أنظمة الشبكات المدمجة",
+      "member_count": 6,
+      "members": [
+        {
+          "code": "16203198400013",
+          "full_name": "د/ زينب حسن على حسن",
+          "birth_date": "1984-02-17",
+          "position": "أستاذ مساعد",
+          "appointment_date": "2025-12-30",
+          "specialization": "حاسبات ونظم، هندسة الالكترونيات"
+        },
+        {
+          "code": "16203198700004",
+          "full_name": "د/ على ابراهيم احمد صيام",
+          "birth_date": "1987-09-09",
+          "position": "مدرس",
+          "appointment_date": "2021-03-30",
+          "specialization": "هندسة الالكترونيات والاتصالات الكهربائية"
+        },
+        {
+          "code": "16203198600005",
+          "full_name": "د/ بسمة محمد حسن ابراهيم",
+          "birth_date": "1986-05-01",
+          "position": "مدرس",
+          "appointment_date": "2022-05-31",
+          "specialization": "تكنولوجيا الهندسة الكهربائية"
+        },
+        {
+          "code": "16203199780003",
+          "full_name": "عبد المولى يوسف عبد المولى علي",
+          "birth_date": "1997-08-03",
+          "position": "مدرس مساعد",
+          "appointment_date": "2025-10-07",
+          "specialization": "نظم المعلومات"
+        },
+        {
+          "code": "16203200180008",
+          "full_name": "محمد أمين نجيب مرعي",
+          "birth_date": "2001-07-31",
+          "position": "معيد",
+          "appointment_date": "2024-04-08",
+          "specialization": "تكنولوجيا أنظمة الشبكات المدمجة"
+        },
+        {
+          "code": "16203200280016",
+          "full_name": "مى سعيد سعيد احمد مليسي",
+          "birth_date": "2002-06-11",
+          "position": "معيد",
+          "appointment_date": "2025-09-22",
+          "specialization": "تكنولوجيا أنظمة الشبكات المدمجة"
+        }
       ]
     },
     {
-      "id": 8,
-      "full_name": "وائل محمد صبحي أبو شعيشة",
-      "full_name_en": "Wael Mohamed Sobhy Abo Shiesha",
-      "position": "أمين كلية الذكاء الاصطناعي",
-      "job_category": "إداري",
-      "status": "قائم",
-      "email": "com.unit@kfs.edu.eg",
-      "alternative_email": "waelmohamed20182019@gmail.com",
-      "phone": "002 01007885502",
-      "date_of_birth": "28/1/1980",
-      "education": {
-        "bachelor": "هندسة (شعبة حاسبات وتحكم آلى) - جامعة طنطا",
-        "diploma": "دبلوم إدارة أعمال - بتقدير ممتاز (2017)"
-      },
-      "certifications": [
-        "PMP (Project Management Professional) - 2016",
-        "CCNA, MCITP",
-        "TOT (تدريب المدربين) - المجلس الأعلى للجامعات - 2020",
-        "دورة الأمن القومي - أكاديمية ناصر العسكرية - 2018"
-      ],
-      "previous_positions": [
-        "مهندس بشبكة معلومات الجامعة (2005-2017)",
-        "مدير إدارة الحاسبات - جامعة كفر الشيخ (2017-2019)",
-        "أمين كلية الذكاء الاصطناعي (مارس 2019 - حتى الآن)"
+      "name": "برمجة الآلة واسترجاع المعلومات",
+      "member_count": 9,
+      "members": [
+        {
+          "code": "16203197480014",
+          "full_name": "أ.م.د/ تامر مدحت محمد ابراهيم",
+          "birth_date": "1974-07-13",
+          "position": "أستاذ مساعد",
+          "specialization": "هندسة الحاسبات والتحكم الآلي",
+          "email": "tmedhatm@eng.kfs.edu.eg",
+          "notes": "يشغل حاليًا منصب عميد كلية الذكاء الاصطناعي"
+        },
+        {
+          "code": "16203198580005",
+          "full_name": "د/ مني جمال السيد جعفر",
+          "birth_date": "1985-09-01",
+          "position": "أستاذ مساعد",
+          "appointment_date": "2020-07-28",
+          "specialization": "نظم المعلومات"
+        },
+        {
+          "code": "16203198100001",
+          "full_name": "د/ محمود يس يش شمس الدين",
+          "birth_date": "1981-05-10",
+          "position": "أستاذ مساعد",
+          "appointment_date": "2023-10-31",
+          "specialization": "علوم الحاسب",
+          "research_gate": "https://www.researchgate.net/profile/Mahmoud-Shams",
+          "additional_info": {
+            "current_role": "وكيل الكلية للدراسات العليا والبحوث"
+          }
+        },
+        {
+          "code": "16203198800007",
+          "full_name": "د/ نورا محمود متولى الرشيدى",
+          "birth_date": "1988-12-07",
+          "position": "أستاذ مساعد",
+          "appointment_date": "2025-12-30",
+          "specialization": "نظم المعلومات"
+        },
+        {
+          "code": "16203198900009",
+          "full_name": "د/ فاطمة محمد طلعت المرسى",
+          "birth_date": "1989-10-25",
+          "position": "مدرس",
+          "appointment_date": "2022-02-22",
+          "specialization": "حاسبات ونظم",
+          "research_gate": "https://www.researchgate.net/profile/Fatma-M-Talaat",
+          "additional_info": {
+            "achievements": [
+              "أفضل 2% من العلماء الأكثر تأثيراً عالمياً 2025 (Stanford University)",
+              "المركز الأول في Top Instructor من Huawei"
+            ],
+            "h_index": 37
+          }
+        },
+        {
+          "code": "16203199200003",
+          "full_name": "د/ اسراء حسن عبدالسلام الاشموني",
+          "birth_date": "1992-06-02",
+          "position": "مدرس",
+          "appointment_date": "2022-06-28",
+          "specialization": "علوم الحاسب"
+        },
+        {
+          "code": "16203199100014",
+          "full_name": "د/ محمود أحمد محسن محمد الصباغ",
+          "birth_date": "1991-01-01",
+          "position": "مدرس",
+          "appointment_date": "2024-09-23",
+          "specialization": "هندسة البرمجيات"
+        },
+        {
+          "code": "16203200180011",
+          "full_name": "عاطف عاطف علي موسى مصطفى",
+          "birth_date": "2001-05-05",
+          "position": "معيد",
+          "appointment_date": "2025-05-07",
+          "specialization": "برمجة الآلة واسترجاع البيانات"
+        },
+        {
+          "code": "16203200280017",
+          "full_name": "هاجر علي الورداني عبد الحي",
+          "birth_date": "2002-09-20",
+          "position": "معيد",
+          "appointment_date": "2025-09-22",
+          "specialization": "برمجة الآلة واسترجاع البيانات"
+        }
       ]
     }
   ],
-  "departments": [
-    "برمجة الآلة واسترجاع المعلومات",
-    "الروبوتات والآلات الذكية",
-    "تكنولوجيا أنظمة الشبكات المدمجة",
-    "علوم البيانات"
+  "administrative_staff": [
+    {
+      "full_name": "وائل محمد صبحي أبو شعيشة",
+      "position": "أمين كلية الذكاء الاصطناعي",
+      "email": "com.unit@kfs.edu.eg"
+    }
   ],
-  "statistics": {
-    "total_faculty_members": 27,
-    "professors": 1,
+  "statistics_summary": {
+    "total_faculty_and_assistants": 27,
+    "professors": 0,
     "associate_professors": 5,
     "assistant_professors_lecturers": 9,
-    "teaching_assistants_demonstrators": 12
+    "teaching_assistants": 2,
+    "demonstrators": 11
   }
 }

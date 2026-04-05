@@ -16,7 +16,8 @@ GEN_TIMEOUT_SECONDS = 45
 
 STAFF_QUERY_TERMS = [
     "دكتور", "دكتورة", "هيئة التدريس", "معيد", "مدرس", "استاذ", "أستاذ",
-    "إيميل", "ايميل", "تخصص", "قسم", "وكيل", "عميد", "أمين", "امين"
+    "إيميل", "ايميل", "تخصص", "قسم", "وكيل", "عميد", "أمين", "امين",
+    "بروفايل", "السيرة", "السيره", "بيانات", "معلومات"
 ]
 
 
@@ -46,22 +47,48 @@ def _flatten_values(value):
 
 
 def _build_staff_entry(staff: dict) -> dict:
+    normalized = dict(staff or {})
+
+    if not normalized.get("specialization_specific") and normalized.get("specialization"):
+        normalized["specialization_specific"] = normalized.get("specialization")
+
+    additional = normalized.get("additional_info")
+    if isinstance(additional, dict):
+        for k, v in additional.items():
+            if k not in normalized:
+                normalized[k] = v
+
+    if not normalized.get("current_role") and normalized.get("role"):
+        normalized["current_role"] = normalized.get("role")
+
+    if not normalized.get("full_name") and normalized.get("name"):
+        normalized["full_name"] = normalized.get("name")
+
     text_parts = []
     for key in [
         "full_name", "full_name_en", "position", "current_role", "department",
         "specialization_general", "specialization_specific", "status", "email", "notes"
     ]:
-        if staff.get(key):
-            text_parts.append(str(staff.get(key)))
+        if normalized.get(key):
+            text_parts.append(str(normalized.get(key)))
+
+    if normalized.get("birth_date"):
+        text_parts.append(f"تاريخ الميلاد: {normalized.get('birth_date')}")
+    if normalized.get("appointment_date"):
+        text_parts.append(f"تاريخ التعيين: {normalized.get('appointment_date')}")
+    if normalized.get("h_index"):
+        text_parts.append(f"H-Index: {normalized.get('h_index')}")
+    if normalized.get("publications_count"):
+        text_parts.append(f"عدد الأبحاث: {normalized.get('publications_count')}")
 
     for nested_key in [
         "education", "achievements", "research_interests", "memberships",
         "previous_positions", "certifications"
     ]:
-        text_parts.extend(_flatten_values(staff.get(nested_key)))
+        text_parts.extend(_flatten_values(normalized.get(nested_key)))
 
-    title = staff.get("full_name") or staff.get("position") or "عضو هيئة تدريس"
-    subtitle = staff.get("position") or ""
+    title = normalized.get("full_name") or normalized.get("position") or "عضو هيئة تدريس"
+    subtitle = normalized.get("position") or ""
     if subtitle:
         title = f"{title} - {subtitle}"
 
@@ -69,19 +96,20 @@ def _build_staff_entry(staff: dict) -> dict:
         "type": "staff",
         "category": "faculty",
         "title": title,
-        "title_ar": staff.get("full_name") or title,
-        "full_name": staff.get("full_name"),
-        "position": staff.get("position"),
-        "department": staff.get("department"),
+        "title_ar": normalized.get("full_name") or title,
+        "full_name": normalized.get("full_name"),
+        "position": normalized.get("position"),
+        "department": normalized.get("department"),
         "keywords": [
             "دكتور", "دكتورة", "هيئة التدريس", "معيد", "قسم", "تخصص", "ايميل",
-            staff.get("full_name", ""),
-            staff.get("full_name_en", ""),
-            staff.get("department", ""),
-            staff.get("position", ""),
+            normalized.get("full_name", ""),
+            normalized.get("full_name_en", ""),
+            normalized.get("department", ""),
+            normalized.get("position", ""),
+            normalized.get("current_role", ""),
         ],
         "text_ar": " | ".join([p for p in text_parts if p]),
-        "staff_profile": staff,
+        "staff_profile": normalized,
         "source": "data2.json",
     }
 
@@ -126,17 +154,112 @@ def normalize_data_records(raw) -> list:
             if isinstance(member, dict):
                 records.append(_build_staff_entry(member))
 
+    leadership = faculty_details.get("leadership") or {}
+    if isinstance(leadership, dict):
+        dean = leadership.get("dean")
+        if isinstance(dean, dict):
+            records.append(_build_staff_entry({
+                "full_name": dean.get("name"),
+                "position": dean.get("title") or "عميد",
+                "current_role": dean.get("title"),
+                "department": "كلية الذكاء الاصطناعي",
+            }))
+
+        vice_deans = leadership.get("vice_deans") or []
+        if isinstance(vice_deans, list):
+            for vice in vice_deans:
+                if isinstance(vice, dict):
+                    records.append(_build_staff_entry({
+                        "full_name": vice.get("name"),
+                        "position": "وكيل كلية",
+                        "current_role": vice.get("role"),
+                        "department": "كلية الذكاء الاصطناعي",
+                    }))
+
+        secretary = leadership.get("secretary")
+        if isinstance(secretary, dict):
+            records.append(_build_staff_entry({
+                "full_name": secretary.get("name"),
+                "position": secretary.get("role") or "أمين الكلية",
+                "current_role": secretary.get("role"),
+                "email": secretary.get("email"),
+                "department": "كلية الذكاء الاصطناعي",
+            }))
+
+    dean_full_profile = raw.get("dean_full_profile")
+    if isinstance(dean_full_profile, dict):
+        records.append(_build_staff_entry({
+            **dean_full_profile,
+            "full_name": dean_full_profile.get("full_name") or dean_full_profile.get("name"),
+            "position": dean_full_profile.get("academic_rank") or "عميد كلية",
+            "current_role": dean_full_profile.get("current_position"),
+            "specialization_general": " | ".join(_flatten_values(dean_full_profile.get("research_interests"))),
+        }))
+
     departments = raw.get("departments")
     if isinstance(departments, list) and departments:
-        records.append({
-            "type": "departments",
-            "category": "faculty_info",
-            "title": "أقسام الكلية",
-            "title_ar": "أقسام الكلية",
-            "keywords": ["أقسام", "قسم", "الكلية"],
-            "text_ar": "\n".join([f"- {d}" for d in departments]),
-            "source": "data2.json",
-        })
+        if departments and isinstance(departments[0], dict):
+            dept_names = [d.get("name") for d in departments if isinstance(d, dict) and d.get("name")]
+            records.append({
+                "type": "departments",
+                "category": "faculty_info",
+                "title": "أقسام الكلية",
+                "title_ar": "أقسام الكلية",
+                "keywords": ["أقسام", "قسم", "الكلية"],
+                "text_ar": "\n".join([f"- {d}" for d in dept_names]),
+                "source": "data2.json",
+            })
+
+            for dept in departments:
+                if not isinstance(dept, dict):
+                    continue
+                dept_name = dept.get("name") or "قسم"
+                member_count = dept.get("member_count")
+                members = dept.get("members") or []
+
+                records.append({
+                    "type": "department",
+                    "category": "faculty_info",
+                    "title": f"قسم {dept_name}",
+                    "title_ar": f"قسم {dept_name}",
+                    "department": dept_name,
+                    "keywords": ["قسم", "أعضاء", dept_name],
+                    "text_ar": " | ".join([
+                        f"اسم القسم: {dept_name}",
+                        f"عدد الأعضاء: {member_count}" if member_count is not None else "",
+                        f"أسماء الأعضاء: {', '.join([m.get('full_name', '') for m in members if isinstance(m, dict) and m.get('full_name')])}",
+                    ]),
+                    "source": "data2.json",
+                })
+
+                if isinstance(members, list):
+                    for member in members:
+                        if isinstance(member, dict):
+                            records.append(_build_staff_entry({
+                                **member,
+                                "department": dept_name,
+                                "specialization_specific": member.get("specialization"),
+                            }))
+        else:
+            records.append({
+                "type": "departments",
+                "category": "faculty_info",
+                "title": "أقسام الكلية",
+                "title_ar": "أقسام الكلية",
+                "keywords": ["أقسام", "قسم", "الكلية"],
+                "text_ar": "\n".join([f"- {d}" for d in departments]),
+                "source": "data2.json",
+            })
+
+    administrative_staff = raw.get("administrative_staff") or []
+    if isinstance(administrative_staff, list):
+        for admin in administrative_staff:
+            if isinstance(admin, dict):
+                records.append(_build_staff_entry({
+                    **admin,
+                    "current_role": admin.get("position"),
+                    "department": "الإدارة",
+                }))
 
     statistics = raw.get("statistics")
     if isinstance(statistics, dict):
@@ -147,6 +270,30 @@ def normalize_data_records(raw) -> list:
             "title_ar": "إحصائيات أعضاء هيئة التدريس",
             "keywords": ["إحصائيات", "عدد", "هيئة التدريس", "أساتذة"],
             "text_ar": " | ".join(_flatten_values(statistics)),
+            "source": "data2.json",
+        })
+
+    faculty_stats = faculty_details.get("statistics") or {}
+    if isinstance(faculty_stats, dict):
+        records.append({
+            "type": "statistics",
+            "category": "faculty_info",
+            "title": "إحصائيات الكلية",
+            "title_ar": "إحصائيات الكلية",
+            "keywords": ["إحصائيات", "عدد", "أعضاء", "هيئة التدريس", "الكلية"],
+            "text_ar": " | ".join(_flatten_values(faculty_stats)),
+            "source": "data2.json",
+        })
+
+    statistics_summary = raw.get("statistics_summary")
+    if isinstance(statistics_summary, dict):
+        records.append({
+            "type": "statistics",
+            "category": "faculty_info",
+            "title": "ملخص الإحصائيات",
+            "title_ar": "ملخص الإحصائيات",
+            "keywords": ["إحصائيات", "ملخص", "عدد", "معيد", "مدرس", "أستاذ"],
+            "text_ar": " | ".join(_flatten_values(statistics_summary)),
             "source": "data2.json",
         })
 
@@ -261,20 +408,48 @@ def is_staff_query(query: str) -> bool:
 def _name_tokens(full_name: str) -> list:
     if not full_name:
         return []
-    return [t for t in re.findall(r'[\u0600-\u06FFA-Za-z]+', full_name) if len(t) >= 2]
+
+    txt = str(full_name)
+    txt = unicodedata.normalize('NFKC', txt)
+    txt = re.sub(r'[\u064B-\u0652]', '', txt)  # remove Arabic diacritics
+    txt = txt.lower()
+    txt = re.sub(r'\b(د|دكتور|دكتورة|ا\.م\.د|أ\.م\.د|ا\.د|أ\.د)\b', ' ', txt)
+    txt = txt.replace('/', ' ').replace('.', ' ')
+
+    stop_tokens = {
+        "محمد", "احمد", "أحمد", "عبد", "ابو", "أبو", "بن", "ابن",
+        "ال", "الشيخ", "سيد", "عيد", "علي", "حسن", "محمود"
+    }
+    tokens = [t for t in re.findall(r'[\u0600-\u06FFA-Za-z]+', txt) if len(t) >= 2]
+    filtered = [t for t in tokens if t not in stop_tokens]
+    return filtered or tokens
 
 
 def _staff_name_match_score(query: str, entry: dict) -> float:
     q = query.strip()
     name = entry.get("title_ar") or entry.get("full_name") or ""
     tokens = _name_tokens(name)
+    query_tokens = _name_tokens(q)
     if not tokens:
         return 0.0
 
-    matched = sum(1 for t in tokens if t in q)
+    matched = 0
+    for t in tokens:
+        if t in q or t in query_tokens:
+            matched += 1
+
+    if query_tokens:
+        overlap = sum(1 for t in query_tokens if t in tokens)
+        matched = max(matched, overlap)
+
     if matched == 0:
         return 0.0
-    return matched / len(tokens)
+
+    base = matched / max(1, len(tokens))
+    if len(query_tokens) == 1 and query_tokens[0] in tokens:
+        base = max(base, 0.45)
+
+    return min(1.0, base)
 
 
 def _rerank_staff_results(results: list, query: str) -> list:
@@ -312,26 +487,63 @@ def compose_staff_answer(query: str, staff_chunk: dict) -> str:
     email = profile.get("email")
 
     q = query.strip()
-    if any(k in q for k in ["إيميل", "ايميل", "email", "البريد"]):
-        if email and "لم يتم" not in str(email):
-            return f"إيميل {name}: {email}."
-        return f"لا يوجد إيميل متاح حاليًا لـ {name} في البيانات."
+    birth_date = profile.get("birth_date")
+    appointment_date = profile.get("appointment_date")
+    h_index = profile.get("h_index")
+    publications = profile.get("publications_count")
 
-    if any(k in q for k in ["تخصص", "مجال", "research", "اهتمام"]):
-        if spec:
-            return f"تخصص {name}: {spec}."
-        return f"لا توجد تفاصيل تخصص دقيقة لـ {name} في البيانات الحالية."
+    achievements = _flatten_values(profile.get("achievements"))
+    if not achievements:
+        achievements = _flatten_values((profile.get("additional_info") or {}).get("achievements"))
 
-    if any(k in q for k in ["وكيل", "عميد", "أمين", "امين"]):
-        summary = role or f"{position}"
-        return f"{name} يشغل: {summary}."
+    interests = _flatten_values(profile.get("research_interests"))
+    memberships = _flatten_values(profile.get("memberships"))
 
-    parts = [f"{name} يعمل كـ {position}"]
-    if department:
-        parts.append(f"في قسم {department}")
+    lines = [f"بيانات {name}:"]
+    lines.append(f"- الوظيفة: {position}")
     if role:
-        parts.append(f"والدور الحالي: {role}")
-    return "، ".join(parts) + "."
+        lines.append(f"- الدور الحالي: {role}")
+    if department:
+        lines.append(f"- القسم/الجهة: {department}")
+    if spec:
+        lines.append(f"- التخصص: {spec}")
+    if email and "لم يتم" not in str(email):
+        lines.append(f"- البريد الإلكتروني: {email}")
+    if birth_date:
+        lines.append(f"- تاريخ الميلاد: {birth_date}")
+    if appointment_date:
+        lines.append(f"- تاريخ التعيين: {appointment_date}")
+    if h_index:
+        lines.append(f"- H-Index: {h_index}")
+    if publications:
+        lines.append(f"- عدد الأبحاث: {publications}")
+
+    if achievements:
+        lines.append("- أبرز الإنجازات:")
+        lines.extend([f"  - {a}" for a in achievements[:4]])
+
+    if interests:
+        lines.append("- الاهتمامات البحثية:")
+        lines.extend([f"  - {i}" for i in interests[:6]])
+
+    if memberships:
+        lines.append("- العضويات:")
+        lines.extend([f"  - {m}" for m in memberships[:4]])
+
+    asks_email = any(k in q for k in ["إيميل", "ايميل", "email", "البريد"])
+    asks_spec = any(k in q for k in ["تخصص", "مجال", "research", "اهتمام"])
+    asks_role = any(k in q for k in ["وكيل", "عميد", "أمين", "امين", "منصب", "دور"])
+
+    if asks_email and not (email and "لم يتم" not in str(email)):
+        lines.insert(1, "- ملاحظة: لا يوجد بريد إلكتروني متاح في البيانات الحالية.")
+
+    if asks_spec and not spec:
+        lines.insert(1, "- ملاحظة: لا يوجد تخصص تفصيلي متاح في البيانات الحالية.")
+
+    if asks_role and not role:
+        lines.insert(1, "- ملاحظة: لا يوجد دور إداري محدد لهذا الاسم في البيانات الحالية.")
+
+    return "\n".join(lines)
 
 
 def extract_level_semester(query: str):
@@ -369,6 +581,13 @@ def extract_level_semester(query: str):
 def smart_filter(results: list, query: str) -> list:
     q = query.strip()
     has_courses_intent = any(k in q for k in ["مواد", "مقررات", "الخطة", "المستوى", "الفصل"])
+
+    asks_counts = any(k in q for k in ["كم", "عدد", "إحصائيات", "احصائيات", "إجمالي", "اجمالي"])
+    stats_terms = any(k in q for k in ["هيئة التدريس", "المعيد", "المعيدين", "المدرس", "الكلية", "القسم", "الأقسام", "الاقسام"])
+
+    if asks_counts and stats_terms:
+        stats = [r for r in results if r.get("type") in ("statistics", "department", "departments")]
+        return stats or results
 
     if is_staff_query(q):
         staff = [r for r in results if r.get("type") == "staff" or r.get("category") == "faculty"]
@@ -463,7 +682,7 @@ def generate_answer(query: str, retrieved_chunks: list, api_key=None) -> str:
 2. استخدم فقط المعلومات الموجودة في السياق
 3. إذا كانت الإجابة رقماً أو شرطاً محدداً، اذكره مباشرة
 4. اذكر رقم المادة إن وجد
-5. أجب في 3 جمل أو أقل
+5. لا تختصر إذا كان السؤال يطلب بيانات شخص أو تفاصيل متعددة، وقدّم النقاط في شكل قائمة واضحة
 <|im_end|>
 <|im_start|>user
 السياق:

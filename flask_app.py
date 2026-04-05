@@ -1,7 +1,7 @@
 import os
 import html
 import time
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from rag_system import LaihaRAG, check_ollama, generate_answer, OLLAMA_MODEL, is_staff_query, compose_staff_answer
 
 app = Flask(__name__)
@@ -16,50 +16,45 @@ ANSWER_CACHE_TTL = 300
 _ollama_cache = {"value": None, "ts": 0.0}
 _answer_cache = {}
 
-SUGGESTED_QUESTIONS = [
-    (
-        "التخرج والنجاح",
-        [
+SUGGESTED_QUESTION_GROUPS = [
+    {
+        "id": "regs",
+        "title": "اللوائح",
+        "items": [
             "كم ساعة للتخرج؟",
-            "ما درجة النجاح في المقرر؟",
             "ما شروط مرتبة الشرف؟",
-            "متى يفصل الطالب؟",
+            "ما درجة النجاح في المقرر؟",
+            "مواد المستوى الثاني الفصل الأول",
         ],
-    ),
-    (
-        "التسجيل والدراسة",
-        [
-            "ما الحد الأقصى لساعات التسجيل؟",
-            "ما قواعد الحذف والاضافة؟",
-            "ما نسبة الحضور المطلوبة؟",
-            "ما شروط الانسحاب من مقرر؟",
+    },
+    {
+        "id": "staff",
+        "title": "هيئة التدريس",
+        "items": [
+            "مين وكيل الكلية للدراسات العليا والبحوث؟",
+            "اعرض بيانات د. فاطمة محمد طلعت المرسي كاملة",
+            "ما إنجازات د. فاطمة محمد طلعت المرسي؟",
+            "ما تخصص حسن سعد حسن عبداللطيف محمود ابو منيسي؟",
         ],
-    ),
-    (
-        "الخطة الدراسية",
-        [
-            "مواد المستوى الأول الفصل الأول",
-            "مواد المستوى الثاني الفصل الثاني",
-            "مواد المستوى الرابع الفصل الأول",
-            "ما شروط مشروع التخرج؟",
-        ],
-    ),
-    (
-        "الدكاترة والكلية",
-        [
-            "مين وكيل الكلية لشئون التعليم والطلاب؟",
-            "ايه تخصص د. محمود يس يش شمس الدين؟",
-            "ايميل د. تامر مدحت؟",
+    },
+    {
+        "id": "stats",
+        "title": "إحصائيات",
+        "items": [
             "كم عدد أعضاء هيئة التدريس في الكلية؟",
+            "كم عدد المعيدين في الكلية؟",
+            "كم عدد أعضاء قسم علوم البيانات؟",
+            "اعرض إحصائيات الكلية حسب القسم",
         ],
-    ),
+    },
 ]
 
 
 def format_retrieved_answer(chunks):
     lines = []
-    for chunk in chunks[:3]:
+    for chunk in chunks[:5]:
         text = chunk.get("text") or chunk.get("text_ar") or chunk.get("description_en", "")
+        text = (text or "").replace(" | ", "\n")
         if text.strip():
             lines.append(f"- {text}")
     return "\n\n".join(lines) if lines else "لا توجد نتيجة مناسبة."
@@ -133,15 +128,6 @@ def remove_numbering_prefix(line: str) -> str:
     return line
 
 
-def build_answer_preview(answer: str, limit: int = 150) -> str:
-    if not answer:
-        return ""
-    cleaned = " ".join(answer.replace("\n", " ").split()).strip()
-    if len(cleaned) <= limit:
-        return cleaned
-    return cleaned[:limit].rstrip() + "..."
-
-
 def source_to_html(text: str, max_lines: int = 5) -> str:
     if not text:
         return ""
@@ -164,9 +150,88 @@ def source_to_html(text: str, max_lines: int = 5) -> str:
     return f"<p>{html.escape(joined)}</p>"
 
 
-def prepare_sources_for_view(sources: list) -> list:
+def infer_query_intent(query: str) -> str:
+    q = (query or "").strip()
+    if any(k in q for k in ["كم", "عدد", "إحصائيات", "احصائيات", "إجمالي", "اجمالي"]):
+        return "statistics"
+    if any(k in q for k in ["مواد", "مقررات", "خطة", "المستوى", "الفصل"]):
+        return "courses"
+    if is_staff_query(q):
+        return "staff"
+    return "general"
+
+
+def source_reason(src: dict, intent: str) -> str:
+    src_type = src.get("type")
+    title = src.get("title") or src.get("title_ar") or ""
+
+    if intent == "statistics":
+        if src_type == "statistics":
+            return "تم اختيار المصدر لأنه يحتوي أرقام وإحصائيات مباشرة مرتبطة بسؤالك."
+        if src_type in ("department", "departments"):
+            return "تم اختيار المصدر لأنه يوضح توزيع الأعضاء على الأقسام."
+    if intent == "staff":
+        if src_type == "staff":
+            return "تم اختيار المصدر لأنه ملف شخصي مباشر لعضو هيئة التدريس المطلوب."
+    if intent == "courses" and src_type == "courses":
+        return "تم اختيار المصدر لأنه يتضمن مقررات المستوى/الفصل المطلوب."
+
+    if "إحصائ" in title or "إحصائ" in (src.get("text_ar") or ""):
+        return "تم اختياره لوجود بيانات رقمية تدعم الإجابة."
+    return "تم اختياره لأنه الأعلى صلةً بسؤالك حسب البحث الهجين."
+
+
+def sort_sources_by_intent(sources: list, intent: str) -> list:
+    def priority(src):
+        src_type = src.get("type")
+        if intent == "statistics":
+            if src_type == "statistics":
+                return 0
+            if src_type in ("department", "departments"):
+                return 1
+        elif intent == "staff":
+            if src_type == "staff":
+                return 0
+        elif intent == "courses":
+            if src_type == "courses":
+                return 0
+        return 2
+
+    return sorted(
+        sources,
+        key=lambda s: (priority(s), -float(s.get("score", 0) or 0)),
+    )
+
+
+def build_disambiguation_candidates(query: str, sources: list, max_items: int = 3) -> list:
+    if not is_staff_query(query):
+        return []
+
+    staff_rows = [s for s in sources if s.get("type") == "staff"]
+    if len(staff_rows) < 2:
+        return []
+
+    top_score = float(staff_rows[0].get("score", 0) or 0)
+    second_score = float(staff_rows[1].get("score", 0) or 0)
+    if abs(top_score - second_score) > 0.24:
+        return []
+
+    names = []
+    for row in staff_rows:
+        name = row.get("full_name") or row.get("title_ar") or ""
+        if name and name not in names:
+            names.append(name)
+        if len(names) >= max_items:
+            break
+
+    return [f"اعرض بيانات {n} كاملة" for n in names]
+
+
+def prepare_sources_for_view(sources: list, query: str = "") -> list:
+    intent = infer_query_intent(query)
+    ordered_sources = sort_sources_by_intent(sources, intent)
     rendered = []
-    for src in sources:
+    for src in ordered_sources:
         text = src.get("text") or src.get("text_ar") or src.get("description_en", "")
         score = float(src.get("score", 0) or 0)
         rendered.append({
@@ -176,9 +241,51 @@ def prepare_sources_for_view(sources: list) -> list:
             "category": src.get("category"),
             "level": src.get("level"),
             "semester": src.get("semester"),
+            "reason": source_reason(src, intent),
             "snippet_html": source_to_html(text),
         })
     return rendered
+
+
+def build_dynamic_questions(max_items: int = 12) -> list:
+    questions = []
+    seen = set()
+
+    chunks = getattr(rag, "chunks", None) or []
+    for row in chunks:
+        if len(questions) >= max_items:
+            break
+
+        t = row.get("type")
+        if t == "staff":
+            name = row.get("full_name") or row.get("title_ar")
+            if name:
+                q = f"اعرض بيانات {name} كاملة"
+                if q not in seen:
+                    seen.add(q)
+                    questions.append(q)
+        elif t == "statistics":
+            q = "اعرض إحصائيات الكلية حسب القسم"
+            if q not in seen:
+                seen.add(q)
+                questions.append(q)
+        elif t == "department":
+            dept = row.get("department")
+            if dept:
+                q = f"كم عدد أعضاء قسم {dept}؟"
+                if q not in seen:
+                    seen.add(q)
+                    questions.append(q)
+        elif t == "courses":
+            level = row.get("level")
+            semester = row.get("semester")
+            if level and semester:
+                q = f"مواد المستوى {level} الفصل {semester}"
+                if q not in seen:
+                    seen.add(q)
+                    questions.append(q)
+
+    return questions[:max_items]
 
 
 def get_ollama_status_cached() -> bool:
@@ -214,9 +321,9 @@ def index():
     query = ""
     answer = ""
     answer_html = ""
-    answer_preview = ""
     sources = []
     rendered_sources = []
+    disambiguation_questions = []
     mode = "retrieval"
     error = ""
 
@@ -229,13 +336,13 @@ def index():
             if cached:
                 answer = cached["answer"]
                 answer_html = cached["answer_html"]
-                answer_preview = cached["answer_preview"]
                 sources = cached["sources"]
                 rendered_sources = cached.get("rendered_sources", [])
+                disambiguation_questions = cached.get("disambiguation_questions", [])
                 mode = cached["mode"]
             else:
                 try:
-                    sources = rag.search(query, top_k=5)
+                    sources = rag.search(query, top_k=6)
                     if sources and sources[0].get("type") == "courses":
                         answer = "\n".join([f"- {c}" for c in sources[0].get("courses", [])])
                         mode = "retrieval"
@@ -254,14 +361,14 @@ def index():
                         mode = "retrieval"
 
                     answer_html = answer_to_html(answer)
-                    answer_preview = build_answer_preview(answer)
-                    rendered_sources = prepare_sources_for_view(sources)
+                    rendered_sources = prepare_sources_for_view(sources, query)
+                    disambiguation_questions = build_disambiguation_candidates(query, sources)
                     set_answer_cache(query, {
                         "answer": answer,
                         "answer_html": answer_html,
-                        "answer_preview": answer_preview,
                         "sources": sources,
                         "rendered_sources": rendered_sources,
+                        "disambiguation_questions": disambiguation_questions,
                         "mode": mode,
                     })
                 except Exception as ex:
@@ -272,15 +379,21 @@ def index():
         query=query,
         answer=answer,
         answer_html=answer_html,
-        answer_preview=answer_preview,
         sources=sources,
         rendered_sources=rendered_sources,
+        disambiguation_questions=disambiguation_questions,
         mode=mode,
         error=error,
         ollama_running=ollama_running,
         model_name=OLLAMA_MODEL,
-        suggested_questions=SUGGESTED_QUESTIONS,
+        suggested_question_groups=SUGGESTED_QUESTION_GROUPS,
     )
+
+
+@app.route("/api/suggest-more", methods=["GET"])
+def suggest_more():
+    items = build_dynamic_questions(max_items=12)
+    return jsonify({"items": items})
 
 
 @app.route("/favicon.ico")

@@ -71,13 +71,31 @@
         <h3>أسئلة سريعة</h3>
       </div>
 
-      <div class="chips compact">
-        {% for grp in suggested_questions %}
-          {% for q in grp[1][:2] %}
-          <button type="button" class="chip" data-q="{{ q }}">{{ q }}</button>
-          {% endfor %}
+      <div class="chips-tabs" role="tablist" aria-label="مجموعات الأسئلة المقترحة">
+        {% for grp in suggested_question_groups %}
+          <button
+            type="button"
+            class="chip-tab {{ 'active' if loop.first else '' }}"
+            data-tab="{{ grp.id }}"
+            aria-selected="{{ 'true' if loop.first else 'false' }}"
+          >
+            {{ grp.title }}
+          </button>
         {% endfor %}
       </div>
+
+      {% for grp in suggested_question_groups %}
+      <div class="chips compact chip-group {{ 'active' if loop.first else '' }}" data-group="{{ grp.id }}">
+        {% for q in grp.items %}
+          <button type="button" class="chip" data-q="{{ q }}">{{ q }}</button>
+        {% endfor %}
+      </div>
+      {% endfor %}
+
+      <div class="suggested-actions">
+        <button type="button" id="more-suggestions" class="more-btn">أسئلة أكتر</button>
+      </div>
+      <div id="dynamic-suggestions" class="chips compact dynamic-chips" aria-live="polite"></div>
     </section>
 
     <section class="panel tips-panel">
@@ -111,13 +129,18 @@
           <button type="button" class="copy-answer">نسخ الإجابة</button>
         </div>
       </div>
-      {% if answer_preview %}
-      <div class="answer-preview">
-        <span>ملخص سريع</span>
-        <p>{{ answer_preview }}</p>
+      <div class="answer-rich" id="answer-block">{{ answer_html|safe }}</div>
+
+      {% if disambiguation_questions %}
+      <div class="disambiguation-block">
+        <strong>هل تقصد أحد الأسماء التالية؟</strong>
+        <div class="chips compact">
+          {% for q in disambiguation_questions %}
+            <button type="button" class="chip" data-q="{{ q }}">{{ q }}</button>
+          {% endfor %}
+        </div>
       </div>
       {% endif %}
-      <div class="answer-rich" id="answer-block">{{ answer_html|safe }}</div>
     </section>
 
     <section class="panel sources-panel">
@@ -135,6 +158,7 @@
             {% if src.level %}<span>L{{ src.level }}</span>{% endif %}
             {% if src.semester %}<span>S{{ src.semester }}</span>{% endif %}
           </div>
+          <div class="source-reason">{{ src.reason }}</div>
           <div class="source-snippet">{{ src.snippet_html|safe }}</div>
         </article>
         {% endfor %}
