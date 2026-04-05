@@ -98,6 +98,41 @@ files/
 - In-memory caching for repeated questions and Ollama status
 - UI with suggested questions, source cards, and logo branding
 
+## Latest Update (April 2026)
+
+- Expanded `data2.json` ingestion to support nested structures:
+	- faculty leadership blocks
+	- dean full profile
+	- departments with member lists
+	- administrative staff
+	- summary statistics
+- Improved staff answering quality:
+	- richer profile responses (role, specialization, dates, achievements, interests, memberships)
+	- better Arabic name matching and handling for short-form queries
+	- disambiguation suggestions when multiple staff names are likely
+- Improved statistics and routing logic:
+	- aggregate count questions are prioritized to statistics sources
+	- source cards are now intent-sorted with a reason shown for why each source was selected
+- Improved UX/UI:
+	- categorized suggested-question tabs (Regulations / Staff / Statistics)
+	- dynamic "More Questions" button (`/api/suggest-more`) generated from indexed content
+	- enhanced logo presentation and cleaner answer panel layout
+- Removed short-answer summary block to keep responses fully detailed
+
+## Quick QA Checklist
+
+- Rebuild index after editing `data.json` or `data2.json`:
+
+```powershell
+d:/Downloads/files/.venv/Scripts/python.exe build_clean_index.py
+```
+
+- Syntax check backend files:
+
+```powershell
+d:/Downloads/files/.venv/Scripts/python.exe -m py_compile flask_app.py rag_system.py
+```
+
 ## Example Queries
 
 ### Regulations
