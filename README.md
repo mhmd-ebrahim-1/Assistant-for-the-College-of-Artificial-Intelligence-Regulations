@@ -1,76 +1,83 @@
 # AI Faculty Regulations Assistant (KFS University)
 
-A local RAG web app for answering questions about the Faculty of Artificial Intelligence regulations at Kafr El-Sheikh University, with clear source snippets and improved accuracy for faculty/staff questions.
+Local Arabic-first RAG assistant for Faculty of AI regulations and staff information at Kafr El-Sheikh University. The project is designed for transparent, source-grounded answers with optional local LLM phrasing.
 
-## Overview
+## Value Proposition
 
-The system combines:
-- Hybrid retrieval: FAISS + TF-IDF + keyword boosting
-- Multi-source indexing from:
-	- `data.json` (regulations and academic rules)
-	- `data2.json` (faculty/staff and administration data)
-- Optional local generation with Ollama (`qwen2.5:1.5b-instruct`)
-- Deterministic (non-LLM) answers for staff profile intents (email, role, specialization)
+1. Fast, local retrieval over official faculty data.
+2. Better answer precision for Arabic staff and role-based queries.
+3. Reliable fallback behavior: retrieval mode works even without Ollama.
+4. Explainable output with source snippets and relevance scores.
 
-## Requirements
+## Prerequisites
 
-- Python 3.13+
-- Windows PowerShell (commands below are Windows-friendly)
-- Optional: Ollama for higher quality answer phrasing
-	- Model: `qwen2.5:1.5b-instruct`
+1. Python 3.10 or newer.
+2. pip and virtual environment support.
+3. Optional: Ollama for AI phrasing mode.
+4. Recommended Ollama model: `qwen2.5:1.5b-instruct`.
 
-## Run (Windows)
+## Setup and Run
 
-1. Activate the virtual environment:
+### Linux and macOS
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python tools/build_index.py
+python app/main.py
+```
+
+### Windows PowerShell
 
 ```powershell
+python -m venv .venv
 & .\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python tools/build_index.py
+python app/main.py
 ```
 
-2. Install dependencies:
+Open `http://127.0.0.1:5000`.
 
-```powershell
-d:/Downloads/files/.venv/Scripts/python.exe -m pip install -r requirements.txt
-```
-
-3. Build/rebuild index (from `data.json` + `data2.json`):
-
-```powershell
-d:/Downloads/files/.venv/Scripts/python.exe build_clean_index.py
-```
-
-4. Start Ollama (optional):
-
-```powershell
-ollama serve
-```
-
-5. Start Flask app:
-
-```powershell
-d:/Downloads/files/.venv/Scripts/python.exe flask_app.py
-```
-
-Open:
-- `http://127.0.0.1:5000`
-
-## One-Command Run
+Optional one-command run:
 
 ```powershell
 .\run.ps1
 ```
 
-## Project Structure
+## Architecture Overview
+
+The codebase was refactored from a flat, monolithic layout into a layered structure:
 
 ```text
-files/
-|-- flask_app.py
-|-- rag_system.py
-|-- build_clean_index.py
-|-- data.json
-|-- data2.json
-|-- requirements.txt
-|-- run.ps1
+RAG-KSUAI/
+|-- app/
+|   |-- main.py                # Flask entrypoint and app wiring
+|   |-- routes.py              # HTTP routes and response rendering
+|   \-- cache.py               # TTL cache utility
+|-- src/
+|   \-- rag_ksa_ai/
+|       |-- config.py          # Runtime constants and defaults
+|       |-- rag.py             # LaihaRAG orchestrator
+|       |-- data/
+|       |   \-- loader.py      # JSON load and normalization
+|       |-- text/
+|       |   |-- normalization.py
+|       |   \-- processing.py  # Text preparation and chunking
+|       |-- indexing/
+|       |   |-- builder.py     # Build FAISS + TF-IDF artifacts
+|       |   \-- store.py       # Load index artifacts
+|       |-- retrieval/
+|       |   |-- scoring.py     # Keyword and staff-name scoring
+|       |   |-- filters.py     # Intent-aware filtering and reranking
+|       |   \-- hybrid.py      # Hybrid retrieval pipeline
+|       \-- generation/
+|           |-- ollama.py      # LLM generation and health check
+|           \-- formatters.py  # Deterministic answer formatting
+|-- tools/
+|   |-- build_index.py         # New index build command
+|   \-- cli.py                 # Interactive CLI
 |-- templates/
 |   \-- index.html
 |-- static/
@@ -79,96 +86,75 @@ files/
 |   |-- favicon.svg
 |   |-- faculty-logo.png
 |   \-- university-logo.png
-\-- index/
-		|-- faiss.index
-		|-- vectorizer.pkl
-		\-- chunks.json
+|-- data.json
+|-- data2.json
+|-- index/                     # Generated artifacts
+|-- flask_app.py               # Compatibility shim (deprecated)
+|-- rag_system.py              # Compatibility shim (deprecated)
+\-- build_clean_index.py       # Compatibility shim (deprecated)
 ```
 
-## Current Features
+### Runtime Flow
 
-- Fast local semantic retrieval over faculty regulations
-- Staff-aware question handling (dean/vice-dean/secretary/lecturer/profile)
-- Deterministic answers for high-precision staff intents:
-	- email queries
-	- specialization queries
-	- leadership role queries
-- Smart filtering for course plan queries by level/semester
-- Automatic fallback to retrieval when Ollama is unavailable
-- In-memory caching for repeated questions and Ollama status
-- UI with suggested questions, source cards, and logo branding
+1. User submits a query via Flask UI.
+2. Query is served from TTL cache if available.
+3. Hybrid retrieval runs (`retrieval/hybrid.py`): TF-IDF cosine + keyword score + intent filter.
+4. Answer strategy:
+   - Deterministic formatting for staff and structured intents.
+   - Ollama generation when available.
+   - Retrieval-only fallback when Ollama is unavailable or fails.
+5. Render answer and source cards in the template.
 
-## Latest Update (April 2026)
+## Standardized Naming and Migration
 
-- Expanded `data2.json` ingestion to support nested structures:
-	- faculty leadership blocks
-	- dean full profile
-	- departments with member lists
-	- administrative staff
-	- summary statistics
-- Improved staff answering quality:
-	- richer profile responses (role, specialization, dates, achievements, interests, memberships)
-	- better Arabic name matching and handling for short-form queries
-	- disambiguation suggestions when multiple staff names are likely
-- Improved statistics and routing logic:
-	- aggregate count questions are prioritized to statistics sources
-	- source cards are now intent-sorted with a reason shown for why each source was selected
-- Improved UX/UI:
-	- categorized suggested-question tabs (Regulations / Staff / Statistics)
-	- dynamic "More Questions" button (`/api/suggest-more`) generated from indexed content
-	- enhanced logo presentation and cleaner answer panel layout
-- Removed short-answer summary block to keep responses fully detailed
+### Renamed/Relocated
 
-## Quick QA Checklist
+1. `flask_app.py` -> `app/main.py`.
+2. `rag_system.py` -> modular package under `src/rag_ksa_ai/`.
+3. `build_clean_index.py` -> `tools/build_index.py`.
 
-- Rebuild index after editing `data.json` or `data2.json`:
+### Compatibility Policy
 
-```powershell
-d:/Downloads/files/.venv/Scripts/python.exe build_clean_index.py
+Legacy files are currently preserved as shims for one release cycle:
+
+1. `python flask_app.py`
+2. `python rag_system.py` (imports only)
+3. `python build_clean_index.py`
+
+Use new entrypoints for all new development.
+
+## Common Commands
+
+1. Build index: `python tools/build_index.py`
+2. Run web app: `python app/main.py`
+3. Run CLI: `python tools/cli.py`
+4. Syntax check key modules:
+
+```bash
+python -m py_compile app/main.py app/routes.py src/rag_ksa_ai/rag.py
 ```
 
-- Syntax check backend files:
+## Contribution Guidelines
 
-```powershell
-d:/Downloads/files/.venv/Scripts/python.exe -m py_compile flask_app.py rag_system.py
-```
-
-## Example Queries
-
-### Regulations
-- How many credit hours are required for graduation?
-- What are the honor degree conditions?
-- What is the passing grade?
-
-### Staff and Administration
-- Who is the vice dean for education and students?
-- What is Dr. Mahmoud Yassein Shams' specialization?
-- What is Dr. Tamer Medhat's email?
-- How many faculty staff members are there?
+1. Read `CONTRIBUTING.md` before opening a PR.
+2. Keep changes scoped by layer (`data`, `retrieval`, `generation`, `app`).
+3. Add or update tests and manual validation notes for behavior changes.
+4. Update README and migration notes when commands or structure change.
+5. Do not add new logic to deprecated compatibility shims.
 
 ## Troubleshooting
 
-### App does not open
-- Ensure port `5000` is not occupied by another process.
-- Restart with:
+1. Stale answers after editing JSON files:
+   - Rebuild index with `python tools/build_index.py`.
+2. Ollama unavailable:
+   - App remains operational in retrieval-only mode.
+3. Import errors for `rag_ksa_ai`:
+   - Run from repository root, or install in editable mode:
 
-```powershell
-d:/Downloads/files/.venv/Scripts/python.exe flask_app.py
+```bash
+pip install -e .
 ```
 
-### Answers are stale after editing JSON files
-- Rebuild index:
+## License
 
-```powershell
-d:/Downloads/files/.venv/Scripts/python.exe build_clean_index.py
-```
-
-### Ollama start fails with port-in-use error
-- Ollama may already be running on `11434`.
-- You can still run the app; it will connect if Ollama is already active.
-
-## Notes
-
-- Local-first architecture (no external API required for retrieval).
-- Works without Ollama (retrieval-only mode).
-- For best results, ask direct questions with clear keywords.
+Add a `LICENSE` file before public open-source release.
