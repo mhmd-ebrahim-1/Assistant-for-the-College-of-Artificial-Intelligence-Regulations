@@ -50,50 +50,58 @@ Optional one-command run:
 
 The codebase was refactored from a flat, monolithic layout into a layered structure:
 
-```text
-RAG-KSUAI/
-|-- app/
-|   |-- main.py                # Flask entrypoint and app wiring
-|   |-- routes.py              # HTTP routes and response rendering
-|   \-- cache.py               # TTL cache utility
-|-- src/
-|   \-- rag_ksa_ai/
-|       |-- config.py          # Runtime constants and defaults
-|       |-- rag.py             # LaihaRAG orchestrator
-|       |-- data/
-|       |   \-- loader.py      # JSON load and normalization
-|       |-- text/
-|       |   |-- normalization.py
-|       |   \-- processing.py  # Text preparation and chunking
-|       |-- indexing/
-|       |   |-- builder.py     # Build FAISS + TF-IDF artifacts
-|       |   \-- store.py       # Load index artifacts
-|       |-- retrieval/
-|       |   |-- scoring.py     # Keyword and staff-name scoring
-|       |   |-- filters.py     # Intent-aware filtering and reranking
-|       |   \-- hybrid.py      # Hybrid retrieval pipeline
-|       \-- generation/
-|           |-- ollama.py      # LLM generation and health check
-|           \-- formatters.py  # Deterministic answer formatting
-|-- tools/
-|   |-- build_index.py         # New index build command
-|   \-- cli.py                 # Interactive CLI
-|-- templates/
-|   \-- index.html
-|-- static/
-|   |-- style.css
-|   |-- app.js
-|   |-- favicon.svg
-|   |-- faculty-logo.png
-|   \-- university-logo.png
-|-- data.json
-|-- data2.json
-|-- index/                     # Generated artifacts
-|-- flask_app.py               # Compatibility shim (deprecated)
-|-- rag_system.py              # Compatibility shim (deprecated)
-\-- build_clean_index.py       # Compatibility shim (deprecated)
+```py
+rag-ksu-ai/
+│
+├── app/                     # Web layer (Flask app)
+│   ├── __init__.py
+│   ├── main.py              # App factory / entry setup
+│   ├── routes.py            # API routes / endpoints
+│   ├── templates/           # HTML templates
+│   └── static/              # CSS, JS, images
+│
+├── core/                    # Core RAG logic
+│   ├── __init__.py
+│   ├── config.py            # Settings & constants
+│   ├── rag.py               # Main orchestrator
+│   │
+│   ├── data/
+│   │   └── loader.py        # Load & normalize data
+│   │
+│   ├── processing/
+│   │   ├── normalization.py
+│   │   └── chunking.py      # Text splitting
+│   │
+│   ├── indexing/
+│   │   ├── builder.py       # Build vector index
+│   │   └── store.py         # Load/save index
+│   │
+│   ├── retrieval/
+│   │   ├── hybrid.py        # Hybrid search logic
+│   │   ├── scoring.py
+│   │   └── filters.py
+│   │
+│   └── generation/
+│       ├── llm.py           # LLM interface (Ollama/OpenAI/etc.)
+│       └── formatter.py     # Output formatting
+│
+├── data/                    # Raw data (JSON, etc.)
+│   ├── DrData.json
+│   └── UniData.json
+│
+├── index/                   # Generated embeddings / FAISS
+│
+├── tools/                   # CLI & scripts
+│   ├── build_index.py
+│   └── cli.py
+│
+├── tests/                   # Unit & integration tests
+│
+├── requirements.txt
+├── .env
+├── README.md
+└── run.py                   # Single entry point
 ```
-
 ### Runtime Flow
 
 1. User submits a query via Flask UI.
