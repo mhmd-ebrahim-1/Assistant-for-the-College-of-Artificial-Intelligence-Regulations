@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 
-def load_json_data(path: str = "data.json") -> list:
+def load_json_data(path: str = "data/UniData.json") -> list:
     with open(path, encoding="utf-8-sig") as f:
         raw = json.load(f)
     return normalize_data_records(raw)

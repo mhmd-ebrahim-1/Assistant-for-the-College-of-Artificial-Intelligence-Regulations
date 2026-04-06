@@ -2,6 +2,7 @@
 
 Local Arabic-first RAG assistant for Faculty of AI regulations and staff information at Kafr El-Sheikh University. The project is designed for transparent, source-grounded answers with optional local LLM phrasing.
 
+
 ## Value Proposition
 
 1. Fast, local retrieval over official faculty data.
@@ -102,6 +103,7 @@ rag-ksu-ai/
 ├── README.md
 └── run.py                   # Single entry point
 ```
+
 ### Runtime Flow
 
 1. User submits a query via Flask UI.

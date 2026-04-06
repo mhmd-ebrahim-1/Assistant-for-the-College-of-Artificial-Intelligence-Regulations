@@ -12,7 +12,7 @@ class LaihaRAG:
         self.index_dir = index_dir
         self.index = self.vectorizer = self.chunks = None
 
-    def ensure_index(self, json_path="data.json"):
+    def ensure_index(self, json_path="data/UniData.json"):
         if isinstance(json_path, (list, tuple)):
             json_files = [Path(p) for p in json_path]
         else:
@@ -36,7 +36,7 @@ class LaihaRAG:
 
         self.load()
 
-    def build_from_json(self, json_path="data.json"):
+    def build_from_json(self, json_path="data/UniData.json"):
         if isinstance(json_path, (list, tuple)):
             json_paths = list(json_path)
         else:

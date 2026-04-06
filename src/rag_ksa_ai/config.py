@@ -7,7 +7,7 @@ GEN_NUM_PREDICT = 160
 GEN_TIMEOUT_SECONDS = 45
 
 INDEX_DIR = "./index"
-DATA_FILES = ["data.json", "data2.json"]
+DATA_FILES = ["data/UniData.json", "data/DrData.json"]
 
 OLLAMA_STATUS_TTL = 8
 ANSWER_CACHE_TTL = 300
