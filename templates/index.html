@@ -4,12 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>مساعد لائحة الكلية</title>
+
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
   <div class="bg-grid"></div>
   <div class="blob blob-a"></div>
@@ -20,119 +22,158 @@
       <div class="hero-top">
         <div class="hero-badge">مساعدك الذكي في اللائحة</div>
         <div class="status-row">
-          <span class="status {{ 'ok' if ollama_running else 'off' }}">
-            {{ 'Ollama متصل' if ollama_running else 'Ollama غير متصل' }}
-          </span>
+          <span class="status {{ 'ok' if ollama_running else 'off' }}">{{ 'Ollama متصل' if ollama_running else 'Ollama غير متصل' }}</span>
           <span class="status model">{{ model_name }}</span>
         </div>
       </div>
 
-      <div class="logos-strip" aria-label="شعارات الكلية والجامعة">
+      <div class="logos-strip">
         <figure class="logo-card">
-          <img src="{{ url_for('static', filename='faculty-logo.png') }}" alt="شعار كلية الذكاء الاصطناعي" loading="eager">
+          <img src="{{ url_for('static', filename='faculty-logo.png') }}" alt="شعار كلية الذكاء الاصطناعي">
           <figcaption>كلية الذكاء الاصطناعي</figcaption>
         </figure>
+
         <figure class="logo-card">
-          <img src="{{ url_for('static', filename='university-logo.png') }}" alt="شعار جامعة كفر الشيخ" loading="eager">
+          <img src="{{ url_for('static', filename='university-logo.png') }}" alt="شعار جامعة كفر الشيخ">
           <figcaption>جامعة كفر الشيخ</figcaption>
         </figure>
       </div>
 
       <h1>مساعد لائحة كلية الذكاء الاصطناعي</h1>
-      <p>إجابات دقيقة وسريعة عن القبول، الساعات، التخرج، الخطة الدراسية، واللوائح الأكاديمية</p>
+      <p>إجابات دقيقة وسريعة عن القبول، الساعات، الخطة الدراسية، القيادة الأكاديمية، والمواد</p>
 
       <div class="metrics">
-        <div class="metric-card">
-          <strong>وضع التشغيل</strong>
-          <span>{{ 'AI + Retrieval' if ollama_running else 'Retrieval Only' }}</span>
-        </div>
-        <div class="metric-card">
+        <article class="metric-card">
+          <strong>نوع التشغيل</strong>
+          <span>{{ 'AI + Retrieval' if ollama_running else 'Retrieval only' }}</span>
+        </article>
+        <article class="metric-card">
           <strong>مصدر الإجابة</strong>
-          <span>مواد ولائحة الكلية</span>
-        </div>
-        <div class="metric-card">
-          <strong>نوع البحث</strong>
-          <span>Hybrid TF-IDF + Keywords</span>
-        </div>
+          <span>نصوص موثقة من البيانات</span>
+        </article>
+        <article class="metric-card">
+          <strong>وضع الرد الحالي</strong>
+          <span>{{ 'AI (Ollama)' if mode == 'ollama' else 'بحث واسترجاع' }}</span>
+        </article>
       </div>
     </header>
 
     <section class="panel ask-panel">
       <form method="post" id="ask-form">
-        <label for="query">اكتب سؤالك</label>
+        <label>اكتب سؤالك</label>
+
         <div class="query-row">
           <input id="query" name="query" type="text" placeholder="مثال: ما شروط مرتبة الشرف؟" value="{{ query }}" required>
           <button type="submit">اسأل الآن</button>
-          <a class="btn-secondary" href="{{ url_for('clear_history') }}">مسح السابق</a>
+          <a class="btn-secondary" href="{{ url_for('main.clear_history') }}">مسح السابق</a>
+        </div>
+
+        <div class="suggested-head compact">
+          <h3>أسئلة سريعة</h3>
+        </div>
+
+        <div class="chips-tabs">
+          <button type="button" class="chip-tab active" data-tab="leaders">القيادات</button>
+          <button type="button" class="chip-tab" data-tab="faculty">الكلية</button>
+          <button type="button" class="chip-tab" data-tab="regulations">اللائحة</button>
+        </div>
+
+        <div class="chips compact chip-group active" data-group="leaders">
+          <button type="button" class="chip" data-q="من هو رئيس جامعة كفر الشيخ الحالي؟">رئيس الجامعة الحالي</button>
+          <button type="button" class="chip" data-q="من هو رئيس الجامعة السابق؟">رئيس الجامعة السابق</button>
+          <button type="button" class="chip" data-q="من هو عميد كلية الذكاء الاصطناعي حاليا؟">عميد الكلية</button>
+          <button type="button" class="chip" data-q="من هو وكيل الكلية للدراسات العليا والبحوث؟">وكيل الدراسات العليا</button>
+          <button type="button" class="chip" data-q="ما البريد الإلكتروني الرسمي لرئيس الجامعة؟">إيميل الرئيس</button>
+          <button type="button" class="chip" data-q="اعرض بيانات عميد كلية الذكاء الاصطناعي كاملة">بيانات العميد كاملة</button>
+        </div>
+
+        <div class="chips compact chip-group" data-group="faculty">
+          <button type="button" class="chip" data-q="ما أقسام كلية الذكاء الاصطناعي؟">أقسام الكلية</button>
+          <button type="button" class="chip" data-q="كم عدد أعضاء هيئة التدريس بكلية الذكاء الاصطناعي؟">عدد هيئة التدريس</button>
+          <button type="button" class="chip" data-q="ما البرامج الدراسية المتاحة في كلية الذكاء الاصطناعي؟">البرامج الدراسية</button>
+          <button type="button" class="chip" data-q="اذكر نبذة عن كلية الذكاء الاصطناعي بجامعة كفر الشيخ">نبذة عن الكلية</button>
+          <button type="button" class="chip" data-q="ما رؤية ورسالة كلية الذكاء الاصطناعي؟">الرؤية والرسالة</button>
+          <button type="button" class="chip" data-q="اعرض إحصائيات الكلية حسب الأقسام">إحصائيات الأقسام</button>
+        </div>
+
+        <div class="chips compact chip-group" data-group="regulations">
+          <button type="button" class="chip" data-q="ما شروط القبول في كلية الذكاء الاصطناعي؟">شروط القبول</button>
+          <button type="button" class="chip" data-q="كم ساعة معتمدة مطلوبة للتخرج؟">ساعات التخرج</button>
+          <button type="button" class="chip" data-q="ما شروط مرتبة الشرف؟">مرتبة الشرف</button>
+          <button type="button" class="chip" data-q="ما الحد الأدنى للنجاح في المقررات؟">درجة النجاح</button>
+          <button type="button" class="chip" data-q="ما قواعد الحذف والإضافة وحدود الساعات؟">الحذف والإضافة</button>
+          <button type="button" class="chip" data-q="اعرض مواد المستوى الأول الفصل الأول">مواد المستوى الأول</button>
         </div>
       </form>
-    </section>
-
-    <section class="panel tips-panel">
-      <h3>دليل سؤال سريع</h3>
-      <div class="tips-grid">
-        <article>
-          <strong>حدد المستوى والفصل</strong>
-          <span>مثال: مواد المستوى الثاني - الفصل الأول</span>
-        </article>
-        <article>
-          <strong>اذكر كلمة مفتاحية واضحة</strong>
-          <span>مثل: الإنذار، التخرج، النجاح، التسجيل</span>
-        </article>
-        <article>
-          <strong>اسأل بصيغة مباشرة</strong>
-          <span>أمثلة: ما شروط...؟ كم عدد...؟ متى...؟</span>
-        </article>
-      </div>
     </section>
 
     {% if error %}
     <section class="panel error-panel">{{ error }}</section>
     {% endif %}
 
+    <section class="panel tips-panel">
+      <h3>دليل سؤال سريع</h3>
+      <div class="tips-grid">
+        <article>
+          <strong>حدد المنصب والجهة</strong>
+          <span>مثال: من هو رئيس جامعة كفر الشيخ الحالي؟</span>
+        </article>
+        <article>
+          <strong>اذكر الفترة الزمنية</strong>
+          <span>استخدم: الحالي، السابق، خلال سنة معينة.</span>
+        </article>
+        <article>
+          <strong>اطلب نوع البيانات</strong>
+          <span>مثال: البريد، تاريخ التعيين، القسم، الإنجازات.</span>
+        </article>
+      </div>
+    </section>
+
     {% if answer %}
     <section class="panel answer-panel" id="answer-panel">
       <div class="panel-head">
         <h2>الإجابة</h2>
         <div class="answer-actions">
-          <span class="mode {{ mode }}">{{ 'AI' if mode == 'ollama' else 'Search' }}</span>
+          <span class="mode {{ mode }}">{{ 'AI (Ollama)' if mode == 'ollama' else 'بحث واسترجاع' }}</span>
           <button type="button" class="copy-answer">نسخ الإجابة</button>
         </div>
       </div>
+
       <div class="answer-rich" id="answer-block">{{ answer_html|safe }}</div>
 
       {% if disambiguation_questions %}
       <div class="disambiguation-block">
-        <strong>هل تقصد أحد الأسماء التالية؟</strong>
+        <strong>لو تقصد اسم محدد، جرّب سؤال أدق:</strong>
         <div class="chips compact">
           {% for q in disambiguation_questions %}
-            <button type="button" class="chip" data-q="{{ q }}">{{ q }}</button>
+          <button type="button" class="chip" data-q="{{ q }}">{{ q }}</button>
           {% endfor %}
         </div>
       </div>
       {% endif %}
-    </section>
 
-    <section class="panel sources-panel">
-      <h3>المصادر المسترجعة</h3>
+      {% if rendered_sources %}
       <div class="sources-list">
-        {% for src in rendered_sources %}
+        {% for src in rendered_sources[:4] %}
         <article class="source-card">
           <div class="source-meta">
-            <span class="score">تطابق: {{ src.score_text }}</span>
             <span class="title">{{ src.title }}</span>
+            <span class="score">{{ src.score_text }}</span>
           </div>
+
           <div class="source-tags">
-            {% if src.type %}<span>{{ src.type }}</span>{% endif %}
-            {% if src.category %}<span>{{ src.category }}</span>{% endif %}
-            {% if src.level %}<span>L{{ src.level }}</span>{% endif %}
-            {% if src.semester %}<span>S{{ src.semester }}</span>{% endif %}
+            {% if src.type %}<span>النوع: {{ src.type }}</span>{% endif %}
+            {% if src.category %}<span>الفئة: {{ src.category }}</span>{% endif %}
+            {% if src.level %}<span>المستوى: {{ src.level }}</span>{% endif %}
+            {% if src.semester %}<span>الفصل: {{ src.semester }}</span>{% endif %}
           </div>
-          <div class="source-reason">{{ src.reason }}</div>
+
           <div class="source-snippet">{{ src.snippet_html|safe }}</div>
+          <div class="source-reason">{{ src.reason }}</div>
         </article>
         {% endfor %}
       </div>
+      {% endif %}
     </section>
     {% endif %}
   </main>

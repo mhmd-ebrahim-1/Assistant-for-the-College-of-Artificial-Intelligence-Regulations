@@ -1,3 +1,15 @@
+Metadata-Version: 2.4
+Name: rag-ksa-ai
+Version: 0.1.0
+Summary: Local Arabic-first RAG assistant for Faculty AI regulations
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: pymupdf>=1.23.0
+Requires-Dist: scikit-learn>=1.3.0
+Requires-Dist: faiss-cpu>=1.7.4
+Requires-Dist: numpy>=1.24.0
+Requires-Dist: flask>=3.0.0
+
 # AI Faculty Regulations Assistant (KFS University)
 
 Local Arabic-first RAG assistant for Faculty of AI regulations and staff information at Kafr El-Sheikh University. The project is designed for transparent, source-grounded answers with optional local LLM phrasing.

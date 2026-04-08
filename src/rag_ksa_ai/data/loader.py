@@ -2,10 +2,11 @@ import json
 from pathlib import Path
 
 
-def load_json_data(path: str = "data/UniData.json") -> list:
+def load_json_data(path: str = "data.json") -> list:
     with open(path, encoding="utf-8-sig") as f:
         raw = json.load(f)
-    return normalize_data_records(raw)
+    source_name = Path(path).name
+    return normalize_data_records(raw, source_name=source_name)
 
 
 def flatten_values(value):
@@ -94,7 +95,7 @@ def _build_staff_entry(staff: dict) -> dict:
     }
 
 
-def normalize_data_records(raw) -> list:
+def normalize_data_records(raw, source_name: str = "data.json") -> list:
     if isinstance(raw, list):
         return raw
 
@@ -124,8 +125,50 @@ def normalize_data_records(raw) -> list:
             "title_ar": "نبذة عن الكلية",
             "keywords": ["نبذة", "كلية الذكاء الاصطناعي", "الأقسام", "البرامج"],
             "text_ar": " | ".join(flatten_values(faculty_details)),
-            "source": "data2.json",
+            "source": source_name,
         })
+
+    university_presidents = raw.get("university_presidents") or {}
+    if isinstance(university_presidents, dict):
+        current_president = university_presidents.get("current_president")
+        if isinstance(current_president, dict):
+            records.append(_build_staff_entry({
+                "full_name": current_president.get("name"),
+                "position": current_president.get("title") or "رئيس الجامعة",
+                "current_role": current_president.get("title") or "رئيس الجامعة",
+                "status": "حالي",
+                "department": university,
+                "email": current_president.get("official_email") or current_president.get("email"),
+                "appointment_date": current_president.get("appointment_date"),
+                "academic_rank": current_president.get("academic_rank"),
+                "address": current_president.get("address"),
+            }))
+
+        previous_presidents = university_presidents.get("previous_presidents") or []
+        if isinstance(previous_presidents, list):
+            for former in previous_presidents:
+                if isinstance(former, dict):
+                    records.append(_build_staff_entry({
+                        "full_name": former.get("name"),
+                        "position": "رئيس جامعة سابق",
+                        "current_role": "رئيس جامعة سابق",
+                        "status": "سابق",
+                        "department": university,
+                        "notes": " | ".join(flatten_values(former)),
+                    }))
+
+    president_full_profile = raw.get("president_full_profile")
+    if isinstance(president_full_profile, dict):
+        records.append(_build_staff_entry({
+            **president_full_profile,
+            "full_name": president_full_profile.get("full_name") or president_full_profile.get("name"),
+            "position": president_full_profile.get("title") or "رئيس الجامعة",
+            "current_role": president_full_profile.get("title") or "رئيس الجامعة",
+            "status": "حالي",
+            "department": president_full_profile.get("faculty") or university,
+            "specialization_specific": president_full_profile.get("department"),
+            "email": president_full_profile.get("official_email") or president_full_profile.get("email"),
+        }))
 
     staff_members = raw.get("staff_members") or []
     if isinstance(staff_members, list):
@@ -186,7 +229,7 @@ def normalize_data_records(raw) -> list:
                 "title_ar": "أقسام الكلية",
                 "keywords": ["أقسام", "قسم", "الكلية"],
                 "text_ar": "\n".join([f"- {d}" for d in dept_names]),
-                "source": "data2.json",
+                "source": source_name,
             })
 
             for dept in departments:
@@ -208,7 +251,7 @@ def normalize_data_records(raw) -> list:
                         f"عدد الأعضاء: {member_count}" if member_count is not None else "",
                         f"أسماء الأعضاء: {', '.join([m.get('full_name', '') for m in members if isinstance(m, dict) and m.get('full_name')])}",
                     ]),
-                    "source": "data2.json",
+                    "source": source_name,
                 })
 
                 if isinstance(members, list):
@@ -227,7 +270,7 @@ def normalize_data_records(raw) -> list:
                 "title_ar": "أقسام الكلية",
                 "keywords": ["أقسام", "قسم", "الكلية"],
                 "text_ar": "\n".join([f"- {d}" for d in departments]),
-                "source": "data2.json",
+                "source": source_name,
             })
 
     administrative_staff = raw.get("administrative_staff") or []
@@ -249,7 +292,7 @@ def normalize_data_records(raw) -> list:
             "title_ar": "إحصائيات أعضاء هيئة التدريس",
             "keywords": ["إحصائيات", "عدد", "هيئة التدريس", "أساتذة"],
             "text_ar": " | ".join(flatten_values(statistics)),
-            "source": "data2.json",
+            "source": source_name,
         })
 
     faculty_stats = faculty_details.get("statistics") or {}
@@ -261,7 +304,7 @@ def normalize_data_records(raw) -> list:
             "title_ar": "إحصائيات الكلية",
             "keywords": ["إحصائيات", "عدد", "أعضاء", "هيئة التدريس", "الكلية"],
             "text_ar": " | ".join(flatten_values(faculty_stats)),
-            "source": "data2.json",
+            "source": source_name,
         })
 
     statistics_summary = raw.get("statistics_summary")
@@ -273,7 +316,7 @@ def normalize_data_records(raw) -> list:
             "title_ar": "ملخص الإحصائيات",
             "keywords": ["إحصائيات", "ملخص", "عدد", "معيد", "مدرس", "أستاذ"],
             "text_ar": " | ".join(flatten_values(statistics_summary)),
-            "source": "data2.json",
+            "source": source_name,
         })
 
     return records
