@@ -3,6 +3,8 @@ const form = document.getElementById('ask-form');
 const copyBtn = document.querySelector('.copy-answer');
 const answerBlock = document.getElementById('answer-block');
 const answerPanel = document.getElementById('answer-panel');
+const tabButtons = Array.from(document.querySelectorAll('.chip-tab'));
+const tabGroups = Array.from(document.querySelectorAll('.chip-group'));
 
 document.addEventListener('click', (event) => {
   const chip = event.target.closest('.chip');
@@ -11,12 +13,30 @@ document.addEventListener('click', (event) => {
   input.focus();
 });
 
+tabButtons.forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.tab;
+    tabButtons.forEach((b) => b.classList.toggle('active', b === btn));
+    tabGroups.forEach((group) => {
+      group.classList.toggle('active', group.dataset.group === target);
+    });
+  });
+});
+
 if (form) {
   form.addEventListener('submit', () => {
     const btn = form.querySelector('button[type="submit"]');
     if (btn) {
       btn.textContent = 'جاري التحليل...';
       btn.disabled = true;
+    }
+  });
+}
+
+if (input && form) {
+  input.addEventListener('keydown', (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+      form.requestSubmit();
     }
   });
 }

@@ -5,6 +5,9 @@ from rag_ksa_ai.text.processing import prepare_text
 def rerank_staff_results(results: list, query: str) -> list:
     asks_email = any(k in query for k in ["إيميل", "ايميل", "email", "البريد"])
     asks_spec = any(k in query for k in ["تخصص", "مجال", "research", "اهتمام"])
+    asks_leadership = any(k in query for k in ["رئيس", "الرئيس", "عميد", "وكيل", "أمين", "امين"])
+    asks_current = any(k in query for k in ["الحالي", "حاليا", "حالياً", "الآن", "الان"])
+    asks_former = any(k in query for k in ["السابق", "سابق", "الأسبق", "الاسبق"])
 
     boosted = []
     for row in results:
@@ -13,10 +16,33 @@ def rerank_staff_results(results: list, query: str) -> list:
             score += 0.2
             score += 0.8 * staff_name_match_score(query, row)
             profile = row.get("staff_profile") or {}
+            position_text = " ".join([
+                str(profile.get("position") or ""),
+                str(profile.get("current_role") or ""),
+                str(profile.get("status") or ""),
+                str(row.get("title") or ""),
+                str(row.get("title_ar") or ""),
+            ])
             if asks_email and profile.get("email") and "لم يتم" not in str(profile.get("email")):
                 score += 0.15
             if asks_spec and profile.get("specialization_specific"):
                 score += 0.1
+            if asks_leadership:
+                if "رئيس" in query and "رئيس" in position_text:
+                    score += 0.25
+                if "عميد" in query and "عميد" in position_text:
+                    score += 0.25
+                if "وكيل" in query and "وكيل" in position_text:
+                    score += 0.2
+                if ("أمين" in query or "امين" in query) and ("أمين" in position_text or "امين" in position_text):
+                    score += 0.2
+            if asks_current:
+                if any(k in position_text for k in ["حالي", "الحالي", "current"]):
+                    score += 0.3
+                if any(k in position_text for k in ["سابق", "الأسبق", "الاسبق", "former"]):
+                    score -= 0.25
+            if asks_former and any(k in position_text for k in ["سابق", "الأسبق", "الاسبق", "former"]):
+                score += 0.3
 
         copy_row = row.copy()
         copy_row["score"] = round(score, 4)
@@ -73,11 +99,11 @@ def smart_filter(results: list, query: str) -> list:
         staff = [r for r in results if r.get("type") == "staff" or r.get("category") == "faculty"]
         return staff or results
 
-    if any(k in q for k in ["وكيل", "عميد", "أمين", "امين"]):
+    if any(k in q for k in ["رئيس", "الرئيس", "وكيل", "عميد", "أمين", "امين"]):
         staff = [r for r in results if r.get("type") == "staff"]
         leadership = [
             r for r in staff
-            if any(term in prepare_text(r) for term in ["وكيل", "عميد", "أمين", "امين"])
+            if any(term in prepare_text(r) for term in ["رئيس", "الرئيس", "وكيل", "عميد", "أمين", "امين"])
         ]
         return leadership or staff or results
 
